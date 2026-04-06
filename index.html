@@ -4,107 +4,416 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RotaMate — Medical Shift Scheduler</title>
+  <meta name="description" content="Book hospital shifts, track points, and coordinate with your team. Built for medical students." />
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:       #000000;
+      --surface:  #0d0d0d;
+      --border:   #1a1a1a;
+      --teal:     #00BFA5;
+      --teal-dim: rgba(0,191,165,0.12);
+      --teal-glow:rgba(0,191,165,0.18);
+      --text:     #e8e8e8;
+      --muted:    #8a8a8a;
+      --orange:   #FF6D00;
+    }
+
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #000;
-      color: #e8e8e8;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NAV ──────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      z-index: 100;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: -0.3px;
+    }
+    .nav-brand img {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+    }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--teal); }
+
+    /* ── HERO ─────────────────────────────────────────── */
+    .hero {
+      position: relative;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 2rem;
+      padding: 8rem 2rem 5rem;
+      text-align: center;
+      z-index: 1;
+    }
+
+    /* Radial glow */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      height: 600px;
+      background: radial-gradient(ellipse at 50% 0%, rgba(0,191,165,0.18) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .hero-icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 24px;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 60px rgba(0,191,165,0.35), 0 16px 48px rgba(0,0,0,0.8);
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      font-weight: 900;
+      letter-spacing: -3px;
+      line-height: 1.0;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #fff 40%, rgba(0,191,165,0.85) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.6;
+      margin-bottom: 2.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--teal-dim);
+      border: 1px solid rgba(0,191,165,0.3);
+      border-radius: 100px;
+      padding: 6px 18px;
+      color: var(--teal);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+    .pill-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--teal);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--teal);
+      color: #000;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 0.8rem 1.8rem;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.8rem 1.8rem;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--teal); transform: translateY(-1px); }
+
+    /* ── FEATURES ─────────────────────────────────────── */
+    .section {
+      position: relative;
+      z-index: 1;
+      padding: 5rem 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 1rem;
       text-align: center;
     }
-    .icon {
-      width: 96px;
-      height: 96px;
-      background: #00BFA5;
-      border-radius: 22px;
-      margin: 0 auto 1.5rem;
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      text-align: center;
+      font-size: 1rem;
+      max-width: 480px;
+      margin: 0 auto 3rem;
+      line-height: 1.6;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      padding: 2rem;
+      transition: background 0.2s;
+    }
+    .feature-card:hover { background: #111; }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--teal-dim);
+      border: 1px solid rgba(0,191,165,0.2);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 3rem;
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
     }
-    h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .subtitle { color: #8a8a8a; font-size: 1.1rem; margin-bottom: 2.5rem; }
-    .badges { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem; }
-    .badge {
-      background: #0d0d0d;
-      border: 1px solid #222;
-      border-radius: 12px;
-      padding: 0.75rem 1.5rem;
+
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+    .feature-card p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── DIVIDER ──────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* ── FOOTER ───────────────────────────────────────── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 2rem;
+      text-align: center;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 700;
       font-size: 0.95rem;
-      color: #e8e8e8;
+      margin-bottom: 1rem;
+    }
+    .footer-brand img { width: 24px; height: 24px; border-radius: 6px; }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      margin-bottom: 1.25rem;
+    }
+    .footer-links a {
+      color: var(--muted);
+      font-size: 0.85rem;
       text-decoration: none;
+      transition: color 0.2s;
     }
-    .badge:hover { border-color: #00BFA5; }
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      max-width: 700px;
-      margin-bottom: 3rem;
+    .footer-links a:hover { color: var(--teal); }
+
+    footer p {
+      color: #333;
+      font-size: 0.8rem;
     }
-    .feature {
-      background: #0d0d0d;
-      border: 1px solid #1a1a1a;
-      border-radius: 12px;
-      padding: 1.25rem;
-      text-align: left;
+
+    /* ── RESPONSIVE ───────────────────────────────────── */
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .features-grid { grid-template-columns: 1fr; }
     }
-    .feature h3 { font-size: 0.95rem; color: #00BFA5; margin-bottom: 0.4rem; }
-    .feature p { font-size: 0.85rem; color: #8a8a8a; line-height: 1.5; }
-    footer { color: #444; font-size: 0.8rem; }
-    footer a { color: #8a8a8a; text-decoration: none; }
-    footer a:hover { color: #00BFA5; }
   </style>
 </head>
 <body>
-  <div class="icon">🩺</div>
-  <h1>RotaMate</h1>
-  <p class="subtitle">Medical Shift Scheduler for Students</p>
 
-  <div class="badges">
-    <a class="badge" href="#">📱 App Store — Coming Soon</a>
-    <a class="badge" href="#">▶️ Google Play — Coming Soon</a>
-  </div>
-
-  <div class="features">
-    <div class="feature">
-      <h3>Shift Booking</h3>
-      <p>Browse cycles, check capacity, and book your slot instantly with no double-booking.</p>
+  <!-- NAV -->
+  <nav>
+    <div class="nav-brand">
+      <img src="data:image/png;base64,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" alt="RotaMate" />
+      RotaMate
     </div>
-    <div class="feature">
-      <h3>Points Tracking</h3>
-      <p>Every confirmed shift earns points. View your balance per unit at a glance.</p>
-    </div>
-    <div class="feature">
-      <h3>Basma Schedule</h3>
-      <p>Set recurring attendance reminders so you never miss a shift.</p>
-    </div>
-    <div class="feature">
-      <h3>Friends Rooms</h3>
-      <p>Coordinate with classmates in group chat rooms tied to your unit.</p>
-    </div>
-    <div class="feature">
-      <h3>Offline-First</h3>
-      <p>Your bookings and notifications load instantly, even on slow connections.</p>
-    </div>
-    <div class="feature">
-      <h3>Real-Time Sync</h3>
-      <p>Capacity counts and notifications update live — no refresh needed.</p>
-    </div>
-  </div>
-
-  <footer>
-    <p>© 2026 Albara Wadee Ahmed Ghanem &nbsp;·&nbsp;
-      <a href="privacy.html">Privacy Policy</a> &nbsp;·&nbsp;
+    <div class="nav-links">
+      <a href="privacy.html">Privacy</a>
       <a href="support.html">Support</a>
-    </p>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <img class="hero-icon" src="data:image/png;base64,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" alt="RotaMate Icon" />
+    <div class="pill-badge">iOS App — Coming Soon</div>
+    <h1>RotaMate</h1>
+    <p class="hero-sub">Medical shift management for students. Book slots, track points, and coordinate with your unit — all in one place.</p>
+    <div class="cta-row">
+      <a class="btn-primary" href="support.html">Get Support</a>
+      <a class="btn-ghost" href="privacy.html">Privacy Policy</a>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section">
+    <p class="section-label">Features</p>
+    <h2 class="section-title">Everything your rotation needs</h2>
+    <p class="section-sub">Designed for medical students navigating complex hospital shift systems.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📅</div>
+        <h3>Shift Booking</h3>
+        <p>Browse booking cycles, check live capacity, and secure your slot before it fills — with built-in cooldown protection.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⭐</div>
+        <h3>Points Tracking</h3>
+        <p>Every attended shift earns points. View your monthly and all-time balance per unit at a glance.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👆</div>
+        <h3>Basma Schedule</h3>
+        <p>Set recurring attendance reminders per day of the week so you never miss a scheduled shift.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <h3>Friends Rooms</h3>
+        <p>Coordinate with classmates in private chat rooms linked to your unit duty schedule.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Smart Notifications</h3>
+        <p>Instant push alerts when a booking cycle opens, a slot fills up, or your join request is approved.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Home Screen Widget</h3>
+        <p>See your next shift, countdown, and points balance without even opening the app.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">
+      <img src="data:image/png;base64,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" alt="RotaMate" />
+      RotaMate
+    </div>
+    <div class="footer-links">
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="support.html">Support</a>
+      <a href="mailto:rotamateapp@gmail.com">Contact</a>
+    </div>
+    <p>© 2026 Albara Wadee Ahmed Ghanem. All rights reserved.</p>
   </footer>
+
 </body>
 </html>

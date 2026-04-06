@@ -5,83 +5,199 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Privacy Policy — RotaMate</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #000; --surface: #0d0d0d; --border: #1a1a1a;
+      --teal: #00BFA5; --teal-dim: rgba(0,191,165,0.1);
+      --text: #e8e8e8; --body: #c0c0c0; --muted: #8a8a8a;
+    }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #000;
-      color: #e8e8e8;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,191,165,0.1) 0%, transparent 60%);
+      pointer-events: none; z-index: 0;
+    }
+    nav {
+      position: sticky; top: 0;
+      height: 60px;
+      display: flex; align-items: center;
+      padding: 0 2rem;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      z-index: 100;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700; font-size: 1rem;
+      text-decoration: none; color: var(--text);
+    }
+    .nav-brand img { width: 28px; height: 28px; border-radius: 7px; }
+    .nav-back {
+      margin-left: auto;
+      color: var(--muted); font-size: 0.85rem;
+      text-decoration: none; transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--teal); }
+
+    .content {
+      position: relative; z-index: 1;
       max-width: 720px;
       margin: 0 auto;
-      padding: 3rem 2rem;
-      line-height: 1.7;
+      padding: 3.5rem 2rem 5rem;
     }
-    a { color: #00BFA5; text-decoration: none; }
-    h1 { font-size: 2rem; margin-bottom: 0.4rem; }
-    .updated { color: #8a8a8a; font-size: 0.9rem; margin-bottom: 2.5rem; }
-    h2 { font-size: 1.15rem; color: #00BFA5; margin: 2rem 0 0.75rem; }
-    p { color: #c0c0c0; margin-bottom: 1rem; }
-    ul { color: #c0c0c0; padding-left: 1.5rem; margin-bottom: 1rem; }
-    li { margin-bottom: 0.4rem; }
-    table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.9rem; }
-    th { text-align: left; padding: 0.6rem 0.75rem; background: #0d0d0d; color: #8a8a8a; border-bottom: 1px solid #222; }
-    td { padding: 0.6rem 0.75rem; color: #c0c0c0; border-bottom: 1px solid #1a1a1a; }
-    .back { display: inline-block; margin-bottom: 2rem; color: #8a8a8a; font-size: 0.9rem; }
-    .back:hover { color: #00BFA5; }
+
+    .page-header {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-label {
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 0.75rem;
+    }
+    h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 900; letter-spacing: -2px;
+      margin-bottom: 0.5rem;
+    }
+    .updated { color: var(--muted); font-size: 0.875rem; }
+
+    .lead {
+      font-size: 1rem; color: var(--body);
+      line-height: 1.7; margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--teal);
+      border-radius: 0 12px 12px 0;
+    }
+
+    h2 {
+      font-size: 1rem; font-weight: 700;
+      color: var(--teal);
+      margin: 2.5rem 0 1rem;
+      display: flex; align-items: center; gap: 10px;
+    }
+    h2::before {
+      content: '';
+      width: 4px; height: 16px;
+      background: var(--teal);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    p { color: var(--body); line-height: 1.75; margin-bottom: 1rem; font-size: 0.95rem; }
+    ul { color: var(--body); padding-left: 1.5rem; margin-bottom: 1rem; }
+    li { margin-bottom: 0.5rem; line-height: 1.6; font-size: 0.95rem; }
+    strong { color: var(--text); font-weight: 600; }
+    a { color: var(--teal); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    table {
+      width: 100%; border-collapse: collapse;
+      margin-bottom: 1.5rem; font-size: 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+    }
+    th {
+      text-align: left; padding: 0.75rem 1rem;
+      background: var(--surface); color: var(--muted);
+      font-weight: 600; font-size: 0.8rem;
+      letter-spacing: 1px; text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    td { padding: 0.75rem 1rem; color: var(--body); border-bottom: 1px solid #111; }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.01); }
+
+    .contact-block {
+      margin-top: 3rem;
+      padding: 2rem;
+      background: var(--teal-dim);
+      border: 1px solid rgba(0,191,165,0.25);
+      border-radius: 16px;
+      text-align: center;
+    }
+    .contact-block p { color: var(--muted); margin-bottom: 0.75rem; }
+    .contact-block a { font-size: 1.05rem; font-weight: 600; }
   </style>
 </head>
 <body>
-  <a class="back" href="index.html">← Back</a>
-  <h1>Privacy Policy</h1>
-  <p class="updated">Last updated: April 2026</p>
+  <nav>
+    <a class="nav-brand" href="index.html">
+      <img src="data:image/png;base64,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" alt="RotaMate" />
+      RotaMate
+    </a>
+    <a class="nav-back" href="index.html">← Home</a>
+  </nav>
 
-  <p>RotaMate ("we", "our", or "us") is operated by Albara Wadee Ahmed Ghanem. This page explains how we handle your personal information when you use the RotaMate app.</p>
+  <div class="content">
+    <div class="page-header">
+      <p class="page-label">Legal</p>
+      <h1>Privacy Policy</h1>
+      <p class="updated">Last updated: April 2026</p>
+    </div>
 
-  <h2>Information We Collect</h2>
-  <p>When you create an account or use the app, we collect:</p>
-  <ul>
-    <li><strong>Name</strong> — to identify you within your unit and to other members</li>
-    <li><strong>Email address</strong> — for authentication and account recovery</li>
-    <li><strong>Phone number</strong> — for account registration</li>
-    <li><strong>Seat number / student ID</strong> — to verify your identity as a medical student</li>
-    <li><strong>College and department</strong> — to assign you to the correct unit groups</li>
-    <li><strong>Date of birth</strong> — for internal coordination features</li>
-    <li><strong>Shift booking activity</strong> — your booked shifts, attendance records, and points</li>
-  </ul>
+    <p class="lead">RotaMate ("we", "our", or "us") is operated by Albara Wadee Ahmed Ghanem. This page explains how we handle your personal information when you use the RotaMate app.</p>
 
-  <h2>How We Use Your Information</h2>
-  <ul>
-    <li>Authenticate you and manage your account</li>
-    <li>Display your profile to unit managers and fellow members</li>
-    <li>Process shift bookings and calculate points</li>
-    <li>Send push notifications for shift updates and messages</li>
-    <li>Provide customer support</li>
-  </ul>
+    <h2>Information We Collect</h2>
+    <p>When you create an account or use the app, we collect:</p>
+    <ul>
+      <li><strong>Name</strong> — to identify you within your unit and to other members</li>
+      <li><strong>Email address</strong> — for authentication and account recovery</li>
+      <li><strong>Phone number</strong> — for account registration</li>
+      <li><strong>Seat number / student ID</strong> — to verify your identity as a medical student</li>
+      <li><strong>College and department</strong> — to assign you to the correct unit groups</li>
+      <li><strong>Date of birth</strong> — for internal coordination features</li>
+      <li><strong>Shift booking activity</strong> — your booked shifts, attendance records, and points</li>
+    </ul>
 
-  <h2>Data Storage</h2>
-  <p>Your data is stored on Supabase (supabase.com), a cloud platform. All data is encrypted in transit (HTTPS/TLS) and at rest.</p>
+    <h2>How We Use Your Information</h2>
+    <ul>
+      <li>Authenticate you and manage your account</li>
+      <li>Display your profile to unit managers and fellow members</li>
+      <li>Process shift bookings and calculate points</li>
+      <li>Send push notifications for shift updates and messages</li>
+      <li>Provide customer support</li>
+    </ul>
 
-  <h2>Third-Party Services</h2>
-  <table>
-    <tr><th>Service</th><th>Purpose</th></tr>
-    <tr><td>Supabase</td><td>Database, authentication, real-time data</td></tr>
-    <tr><td>Firebase Cloud Messaging</td><td>Push notifications</td></tr>
-    <tr><td>Google Fonts</td><td>Typography (Inter font)</td></tr>
-  </table>
-  <p>We do not sell your data to any third parties.</p>
+    <h2>Data Storage</h2>
+    <p>Your data is stored on Supabase (supabase.com), a cloud platform. All data is encrypted in transit (HTTPS/TLS) and at rest.</p>
 
-  <h2>Data Retention</h2>
-  <p>We retain your personal data for as long as your account is active. You may request deletion by contacting us at the email below.</p>
+    <h2>Third-Party Services</h2>
+    <table>
+      <tr><th>Service</th><th>Purpose</th></tr>
+      <tr><td>Supabase</td><td>Database, authentication, real-time data</td></tr>
+      <tr><td>Firebase Cloud Messaging</td><td>Push notifications</td></tr>
+      <tr><td>Google Fonts</td><td>Typography (Inter font)</td></tr>
+    </table>
+    <p>We do not sell your data to any third parties.</p>
 
-  <h2>Children's Privacy</h2>
-  <p>RotaMate is not intended for users under the age of 16. We do not knowingly collect data from children.</p>
+    <h2>Data Retention</h2>
+    <p>We retain your personal data for as long as your account is active. You may request deletion by contacting us at the email below.</p>
 
-  <h2>Your Rights</h2>
-  <p>You may have the right to access, correct, or delete your personal data. To exercise these rights, contact us at <a href="mailto:rotamateapp@gmail.com">rotamateapp@gmail.com</a>.</p>
+    <h2>Children's Privacy</h2>
+    <p>RotaMate is not intended for users under the age of 16. We do not knowingly collect data from children.</p>
 
-  <h2>Changes to This Policy</h2>
-  <p>We may update this policy from time to time. Changes will be reflected by the "Last updated" date above.</p>
+    <h2>Your Rights</h2>
+    <p>You may have the right to access, correct, or delete your personal data. To exercise these rights, contact us at <a href="mailto:rotamateapp@gmail.com">rotamateapp@gmail.com</a>.</p>
 
-  <h2>Contact</h2>
-  <p>Email: <a href="mailto:rotamateapp@gmail.com">rotamateapp@gmail.com</a></p>
+    <h2>Changes to This Policy</h2>
+    <p>We may update this policy from time to time. Changes will be reflected by the "Last updated" date above.</p>
+
+    <div class="contact-block">
+      <p>Questions about your privacy?</p>
+      <a href="mailto:rotamateapp@gmail.com">rotamateapp@gmail.com</a>
+    </div>
+  </div>
 </body>
 </html>
